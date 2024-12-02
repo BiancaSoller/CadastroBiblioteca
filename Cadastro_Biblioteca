@@ -1,0 +1,139 @@
+import calendar
+import json
+from datetime import datetime, timedelta
+import os
+
+def novo_cadastro():
+    print("\n-------- Cadastro de Livros Metodista --------")
+
+    # Declarando os atributos titulo, autor, ano da publicação, número de páginas, categoria
+    # e cadastro com suas respectivas adequações
+    titulo = input("Título do livro: ")
+    autor = input("Nome do autor: ")
+
+    # Retorna um erro se o campo for inserido da forma errada para dois atributos inteiros
+    try:
+        ano_publicacao = int(input("Ano da publicação: "))
+    except ValueError:
+        print("Formato inválido. Digite somente números inteiros.")
+        ano_publicacao = int(input("\nAno da publicação: "))
+
+    try: 
+        paginas = int(input("Número de páginas: "))
+    except ValueError:
+        print("Formato inválido. Digite somente números inteiros.")
+        paginas = int(input("\nNúmero de páginas: "))
+
+    # Uso de opção para categoria por ser mais dinâmico
+    print("\nQual a categoria do livro?")
+    print("\n1. Drama")
+    print("2. Ficção")
+    print("3. Fantasia")
+    print("4. Comédia")
+    print("5. Romance")
+    print("6. Outro")
+
+    categoria = input("\nCategoria do livro: ")
+
+    if categoria == "1":
+        print("Categoria do livro: Drama")
+    elif categoria == "2":
+        print("Categoria do livro: Ficção")
+    elif categoria == "3":
+        print("Categoria do livro: Fantasia")
+    elif categoria == "4":
+        print("Categoria do livro: Comédia")
+    elif categoria == "5":
+        print("Categoria do livro: Terror")
+    else:
+        categoria = input("Categoria do livro: ")
+    
+    # Fazendo uso do datetime
+    data_cadastro = datetime.now()
+    data_cadastro_formatada = data_cadastro.strftime("%d/%m/%Y")
+    print("Data de cadastro do livro: " + data_cadastro_formatada)
+
+    ano_atual = data_cadastro.year
+    mes_atual = data_cadastro.month
+
+    # Fazendo uso do calendar
+    print(calendar.month(ano_atual, mes_atual))
+
+    # Plus: reutiza a data de cadastro para fazer uma estimativa de quando devolver o livro
+    print("Devolução do livro:")
+    data_devolucao = data_cadastro + timedelta(days=10)
+    dias_semana = ['Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado', 'Domingo']
+    dia_formatado = dias_semana[data_devolucao.weekday()]
+    print("\nO livro será devolvido na " + dia_formatado + ", " + data_devolucao.strftime("%d/%m/%Y"))
+
+    livro = {
+        "titulo": titulo,
+        "autor": autor,
+        "ano_publicacao": ano_publicacao,
+        "paginas": paginas,
+        "categoria": categoria,
+        "data_cadastro_formatada": data_cadastro_formatada
+    }
+    
+    dados_json = json.dumps(livro)
+    salvar_cadastro(dados_json)
+
+def salvar_cadastro(dados: str):
+    actual_text = ""
+
+    if os.path.exists("dados_livro.json") is False:
+        f = open("dados_livro.json", "a")
+        f.close()
+
+    with open("dados_livro.json","r") as r:
+        actual_text = r.read()
+        r.close()
+
+    if actual_text.endswith("]") is True:
+        actual_text = actual_text.replace(" ]",",")
+    else:
+        actual_text = "["
+
+    actual_text = actual_text + "\n" + dados + "\n ]"
+
+    f = open("dados_livro.json", "w")
+    f.write(actual_text)
+    f.close()
+
+    print("Dados salvos com sucesso!")
+        
+def ler_arquivo_json():
+    with open("dados_livro.json", "r") as f:
+        dados = json.load(f)    
+    return str(dados)
+
+def main():
+    print("\nO que deseja fazer?")
+    print("\n1. Cadastrar novo livro")
+    print("2. Exibir cadastros")
+    print("3. Sair")
+
+    opcao = input("Escolha uma opção: ")
+
+    while opcao == "1" or opcao == "2":
+        
+        if opcao == "1":
+            novo_cadastro()
+            print("\nO que deseja fazer?")
+            print("\n1. Cadastrar novo livro")
+            print("2. Exibir cadastros")
+            print("3. Sair")
+            opcao = input("Escolha uma opção: ")
+        elif opcao == "2":
+            texto = "-------- Cadastro de Livros Metodista -------- \n"
+            texto += " " + ler_arquivo_json()
+            print(texto)
+
+            print("\nO que deseja fazer?")
+            print("\n1. Cadastrar novo livro")
+            print("2. Exibir cadastros")
+            print("3. Sair")
+            opcao = input("Escolha uma opção: ")
+        else:
+            break
+main()
